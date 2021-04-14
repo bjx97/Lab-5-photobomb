@@ -44,4 +44,4 @@ const comments = require("./comments.js");
 
 app.use("/api/comments", comments.routes);
 
-app.listen(3003, () => console.log('Server listening on port 3003!'));
+app.listen(3004, () => console.log('Server listening on port 3004!'));
