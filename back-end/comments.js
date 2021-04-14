@@ -11,13 +11,17 @@ const validUser = users.valid;
 const commentSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.ObjectId,
-    ref: 'User', 
+    ref: 'User'
   },
   photo: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Photo', 
+    ref: 'Photo'
   },
-  comment: String
+  comment: String,
+  created: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 const Comment = mongoose.model('Comment', commentSchema);
@@ -45,14 +49,16 @@ router.post('/:id', validUser, async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-      let photo = await Photo.findOne({_id: req.params.id});
+      let photo = await Photo.findOne({
+        _id: req.params.id,
+      });
       if (!photo) {
           res.send(404);
           return;
       }
       let comments = await Comment.find({
-        photo: photo
-      });
+        photo: photo,
+      }).populate("user");
       //console.log(comments);
       res.send(comments);
   } catch (error) {

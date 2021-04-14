@@ -5,19 +5,25 @@
             <p><strong>Title: </strong>{{photo.title}}</p>
             <p><strong>Name: </strong> {{photo.user.firstName}} {{photo.user.lastName}}</p>
             <p><strong>Description: </strong>{{photo.description}}</p>
-            <p><strong>Date: </strong>{{photo.created}}</p>
+            <p><strong>Date: </strong>{{formatDate(photo.created)}}</p>
         </div>
-        <div class="form">
-            <h3>Comment: </h3>
-            <form v-on:submit.prevent="addComment()">
-                <textarea rows="4" cols="50"  v-model="eDescription" placeholder="Description"></textarea><br/><br/>
-                <button type="submit">Comment</button>
-            </form>
-            <h3>List of Comments:</h3>
-            <br/>
-            <div v-for="comment in comments" v-bind:key="comment._id">
-                <p>{{comment.comment}}</p>
-                <p>--<i>{{comment.user}}</i></p>
+        <div class="form-wrapper">
+            <div v-if="this.$root.$data.user != null" class="form">
+                <h3>Comment: </h3>
+                <form v-on:submit.prevent="addComment()">
+                    <textarea rows="4" cols="50"  v-model="eDescription" placeholder="Description"></textarea><br/><br/>
+                    <button type="submit">Comment</button>
+                </form>
+                <br/>
+            </div>
+            <div class="list">
+                <h3>List of Comments:</h3>
+                <div v-for="comment in allcom" v-bind:key="comment._id">
+                    <p>{{comment.comment}}</p>
+                    <p>--<i>{{comment.user.firstName}} {{comment.user.lastName}}</i></p>
+                    <p><strong>Date: </strong>{{formatDate(comment.created)}}</p>
+                    <br/>
+                </div>
             </div>
         </div>
     </div>
@@ -25,6 +31,7 @@
 
 <script>
 import axios from 'axios';
+import moment from 'moment';
 export default {
   name: 'Singlepic',
   data() {
@@ -36,7 +43,7 @@ export default {
         },
         error: '',
         eDescription: '',
-        comments: [],
+        allcom: [],
     }
   },
   created() {
@@ -48,7 +55,9 @@ export default {
       try {
         let response = await axios.get("/api/photos/" + this.$route.params.id);
         this.photo = response.data;
+        console.log(this.photo);
       } catch (error) {
+          console.log(this.photo);
         this.error = error.response.data.message;
       }
     },
@@ -76,6 +85,12 @@ export default {
       } catch (error) {
         console.log(error);
       }
+    },
+    formatDate(date) {
+      if (moment(date).diff(Date.now(), 'days') < 15)
+        return moment(date).fromNow();
+      else
+        return moment(date).format('d MMMM YYYY');
     }
   }
 }
@@ -96,5 +111,15 @@ export default {
     .form{
         margin-left: 100px;
         margin-top: 150px;
+    }
+
+    .form-wrapper {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .list {
+        margin-top: 70px;
+        margin-left:100px;
     }
 </style>
